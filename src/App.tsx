@@ -43,11 +43,13 @@ export default function App() {
               </div>
               <span className="font-bold text-xl tracking-tight text-emerald-950">AgroDrone</span>
             </div>
-            <div className="hidden md:flex items-center gap-8">
-              <a href="#beneficios" className="text-sm font-medium text-stone-600 hover:text-emerald-600 transition-colors">Beneficios</a>
-              <a href="#precio" className="text-sm font-medium text-stone-600 hover:text-emerald-600 transition-colors">Precio</a>
-              <a href="#contacto" className="text-sm font-medium bg-emerald-600 text-white px-4 py-2 rounded-full hover:bg-emerald-700 transition-colors">
-                Agendar Cita
+            <div className="flex items-center gap-4 md:gap-8">
+              <div className="hidden md:flex items-center gap-8">
+                <a href="#beneficios" className="text-sm font-medium text-stone-600 hover:text-emerald-600 transition-colors">Beneficios</a>
+                <a href="#precio" className="text-sm font-medium text-stone-600 hover:text-emerald-600 transition-colors">Precio</a>
+              </div>
+              <a href="#contacto" className="text-sm font-medium bg-emerald-600 text-white px-4 py-2 rounded-full hover:bg-emerald-700 transition-colors shadow-sm">
+                Agendar <span className="hidden sm:inline">Cita</span>
               </a>
             </div>
           </div>
@@ -82,12 +84,12 @@ export default function App() {
             <p className="mt-4 text-xl text-stone-600 max-w-2xl mx-auto mb-10">
               Optimiza tus cultivos, ahorra insumos y protege tu suelo con nuestra tecnología de aplicación aérea. Servicio rápido, eficiente y ecológico.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <a href="#contacto" className="inline-flex items-center justify-center px-8 py-4 text-base font-medium rounded-full text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20 transition-all hover:-translate-y-0.5">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 w-full max-w-md mx-auto sm:max-w-none">
+              <a href="#contacto" className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-medium rounded-full text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20 transition-all hover:-translate-y-0.5">
                 Cotizar mi campo
                 <ChevronRight className="ml-2 w-5 h-5" />
               </a>
-              <a href="#precio" className="inline-flex items-center justify-center px-8 py-4 text-base font-medium rounded-full text-emerald-900 bg-white border border-stone-200 hover:border-emerald-200 hover:bg-emerald-50 transition-all">
+              <a href="#precio" className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-medium rounded-full text-emerald-900 bg-white border border-stone-200 hover:border-emerald-200 hover:bg-emerald-50 transition-all">
                 Ver tarifas
               </a>
             </div>
@@ -98,12 +100,12 @@ export default function App() {
       {/* Pricing Banner */}
       <section id="precio" className="py-12 bg-emerald-950 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
             <div className="flex-1">
               <h2 className="text-3xl font-bold mb-2">Tarifa plana y transparente</h2>
-              <p className="text-emerald-200/80">Sin costos ocultos. Incluye mapeo del terreno, planificación de vuelo y aplicación precisa del producto.</p>
+              <p className="text-emerald-200/80 max-w-2xl mx-auto md:mx-0">Sin costos ocultos. Incluye mapeo del terreno, planificación de vuelo y aplicación precisa del producto.</p>
             </div>
-            <div className="flex-shrink-0 text-center md:text-right">
+            <div className="flex-shrink-0 text-center md:text-right bg-emerald-900/50 p-6 rounded-3xl w-full md:w-auto border border-emerald-800/50">
               <div className="text-5xl font-black tracking-tighter text-emerald-400">
                 $20<span className="text-2xl font-medium text-emerald-200/60">/ha</span>
               </div>
@@ -182,11 +184,11 @@ export default function App() {
             </p>
           </div>
 
-          <div className="bg-emerald-900/40 border border-emerald-800/50 rounded-3xl p-8 md:p-12 backdrop-blur-sm shadow-2xl shadow-black/50">
-            <div className="mb-12">
-              <div className="flex justify-between items-end mb-4">
-                <label className="text-lg font-medium text-emerald-100">Tamaño del lote a fumigar</label>
-                <div className="text-4xl font-black text-white">{calcHectares} <span className="text-xl text-emerald-400 font-medium">ha</span></div>
+          <div className="bg-emerald-900/40 border border-emerald-800/50 rounded-3xl p-6 sm:p-8 md:p-12 backdrop-blur-sm shadow-2xl shadow-black/50">
+            <div className="mb-10 md:mb-12">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 sm:mb-4 gap-2">
+                <label className="text-base sm:text-lg font-medium text-emerald-100">Tamaño del lote a fumigar</label>
+                <div className="text-4xl md:text-5xl font-black text-white">{calcHectares} <span className="text-xl text-emerald-400 font-medium">ha</span></div>
               </div>
               <input 
                 type="range" 
@@ -194,38 +196,46 @@ export default function App() {
                 max="500" 
                 value={calcHectares} 
                 onChange={(e) => setCalcHectares(Number(e.target.value))}
-                className="w-full h-3 bg-emerald-950 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                className="w-full h-4 sm:h-3 bg-emerald-950 rounded-lg appearance-none cursor-pointer accent-emerald-500"
               />
-              <div className="flex justify-between text-sm text-emerald-400/60 mt-2 font-medium">
+              <div className="flex justify-between text-xs sm:text-sm text-emerald-400/60 mt-3 sm:mt-2 font-medium">
                 <span>1 ha</span>
                 <span>500 ha</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-              <div className="bg-emerald-950/50 rounded-2xl p-6 border border-emerald-800/30">
-                <div className="text-emerald-400 mb-3"><DollarSign className="w-8 h-8" /></div>
-                <div className="text-sm text-emerald-200/70 mb-1">Inversión Total</div>
-                <div className="text-3xl font-bold text-white">${(calcHectares * 20).toLocaleString()}</div>
-                <div className="text-xs text-emerald-400/60 mt-2">A $20 por hectárea</div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-10 md:mb-12">
+              <div className="bg-emerald-950/50 rounded-2xl p-4 sm:p-6 border border-emerald-800/30 flex flex-col justify-between">
+                <div className="text-emerald-400 mb-2 sm:mb-3"><DollarSign className="w-6 h-6 sm:w-8 sm:h-8" /></div>
+                <div>
+                  <div className="text-xs sm:text-sm text-emerald-200/70 mb-1">Inversión Total</div>
+                  <div className="text-xl sm:text-3xl font-bold text-white">${(calcHectares * 20).toLocaleString()}</div>
+                  <div className="text-[10px] sm:text-xs text-emerald-400/60 mt-1 sm:mt-2">A $20 por hectárea</div>
+                </div>
               </div>
-              <div className="bg-emerald-950/50 rounded-2xl p-6 border border-emerald-800/30">
-                <div className="text-blue-400 mb-3"><Droplet className="w-8 h-8" /></div>
-                <div className="text-sm text-emerald-200/70 mb-1">Agua Ahorrada</div>
-                <div className="text-3xl font-bold text-white">{(calcHectares * 90).toLocaleString()} L</div>
-                <div className="text-xs text-emerald-400/60 mt-2">Vs. aplicación tradicional</div>
+              <div className="bg-emerald-950/50 rounded-2xl p-4 sm:p-6 border border-emerald-800/30 flex flex-col justify-between">
+                <div className="text-blue-400 mb-2 sm:mb-3"><Droplet className="w-6 h-6 sm:w-8 sm:h-8" /></div>
+                <div>
+                  <div className="text-xs sm:text-sm text-emerald-200/70 mb-1">Agua Ahorrada</div>
+                  <div className="text-xl sm:text-3xl font-bold text-white">{(calcHectares * 90).toLocaleString()} L</div>
+                  <div className="text-[10px] sm:text-xs text-emerald-400/60 mt-1 sm:mt-2">Vs. método tradicional</div>
+                </div>
               </div>
-              <div className="bg-emerald-950/50 rounded-2xl p-6 border border-emerald-800/30">
-                <div className="text-amber-400 mb-3"><Timer className="w-8 h-8" /></div>
-                <div className="text-sm text-emerald-200/70 mb-1">Tiempo Estimado</div>
-                <div className="text-3xl font-bold text-white">{(calcHectares / 10).toFixed(1)} hrs</div>
-                <div className="text-xs text-emerald-400/60 mt-2">Rendimiento: 10 ha/hora</div>
+              <div className="bg-emerald-950/50 rounded-2xl p-4 sm:p-6 border border-emerald-800/30 flex flex-col justify-between">
+                <div className="text-amber-400 mb-2 sm:mb-3"><Timer className="w-6 h-6 sm:w-8 sm:h-8" /></div>
+                <div>
+                  <div className="text-xs sm:text-sm text-emerald-200/70 mb-1">Tiempo Estimado</div>
+                  <div className="text-xl sm:text-3xl font-bold text-white">{(calcHectares / 10).toFixed(1)} hrs</div>
+                  <div className="text-[10px] sm:text-xs text-emerald-400/60 mt-1 sm:mt-2">Rendimiento: 10 ha/hora</div>
+                </div>
               </div>
-              <div className="bg-emerald-950/50 rounded-2xl p-6 border border-emerald-800/30">
-                <div className="text-emerald-400 mb-3"><TrendingUp className="w-8 h-8" /></div>
-                <div className="text-sm text-emerald-200/70 mb-1">Cultivo Salvado</div>
-                <div className="text-3xl font-bold text-white">~{(calcHectares * 0.03).toFixed(1)} ha</div>
-                <div className="text-xs text-emerald-400/60 mt-2">Sin huella de tractor (3%)</div>
+              <div className="bg-emerald-950/50 rounded-2xl p-4 sm:p-6 border border-emerald-800/30 flex flex-col justify-between">
+                <div className="text-emerald-400 mb-2 sm:mb-3"><TrendingUp className="w-6 h-6 sm:w-8 sm:h-8" /></div>
+                <div>
+                  <div className="text-xs sm:text-sm text-emerald-200/70 mb-1">Cultivo Salvado</div>
+                  <div className="text-xl sm:text-3xl font-bold text-white">~{(calcHectares * 0.03).toFixed(1)} ha</div>
+                  <div className="text-[10px] sm:text-xs text-emerald-400/60 mt-1 sm:mt-2">Sin huella de tractor</div>
+                </div>
               </div>
             </div>
 
@@ -235,10 +245,10 @@ export default function App() {
                   setFormHectares(calcHectares.toString());
                   document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full text-emerald-950 bg-emerald-400 hover:bg-emerald-300 shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-1"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-6 sm:px-8 py-4 text-base sm:text-lg font-bold rounded-full text-emerald-950 bg-emerald-400 hover:bg-emerald-300 shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-1"
               >
-                Agendar {calcHectares} hectáreas ahora
-                <ChevronRight className="ml-2 w-6 h-6" />
+                Agendar {calcHectares} ha ahora
+                <ChevronRight className="ml-2 w-5 h-5 sm:w-6 sm:h-6" />
               </button>
             </div>
           </div>
@@ -251,13 +261,13 @@ export default function App() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             
             {/* Info */}
-            <div>
+            <div className="text-center lg:text-left">
               <h2 className="text-3xl md:text-4xl font-bold text-emerald-950 mb-6">Agenda tu servicio hoy mismo</h2>
-              <p className="text-lg text-stone-600 mb-8">
+              <p className="text-lg text-stone-600 mb-8 max-w-2xl mx-auto lg:mx-0">
                 Completa el formulario y nos pondremos en contacto contigo a la brevedad para coordinar los detalles de la aplicación en tu campo.
               </p>
               
-              <div className="space-y-6">
+              <div className="space-y-6 text-left max-w-md mx-auto lg:mx-0">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-700 shrink-0">
                     <Map className="w-5 h-5" />
@@ -403,12 +413,12 @@ export default function App() {
       {/* Footer */}
       <footer className="bg-emerald-950 text-emerald-200/60 py-12 border-t border-emerald-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
             <div className="flex items-center gap-2 text-white">
               <Fan className="w-6 h-6" />
               <span className="font-bold text-xl tracking-tight">AgroDrone</span>
             </div>
-            <div className="flex gap-6 text-sm">
+            <div className="flex flex-wrap justify-center gap-6 text-sm">
               <a href="#" className="hover:text-white transition-colors">Términos de Servicio</a>
               <a href="#" className="hover:text-white transition-colors">Política de Privacidad</a>
             </div>
