@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import React, { useState, useEffect } from 'react';
+import { motion, useScroll, useTransform } from 'motion/react';
 import { 
   Fan, 
   Leaf, 
@@ -14,7 +14,9 @@ import {
   DollarSign,
   Droplet,
   Timer,
-  TrendingUp
+  TrendingUp,
+  Star,
+  Quote
 } from 'lucide-react';
 
 export default function App() {
@@ -22,13 +24,50 @@ export default function App() {
   const [calcHectares, setCalcHectares] = useState<number>(50);
   const [formHectares, setFormHectares] = useState<string>('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [0, 1000], [0, 200]);
+  const y2 = useTransform(scrollY, [0, 1000], [0, -100]);
+  const opacity = useTransform(scrollY, [0, 500], [1, 0]);
+
+  const getPricePerHa = (ha: number) => {
+    if (ha <= 5) return 30;
+    if (ha <= 20) return 25;
+    return 20;
+  };
+
+  const currentPrice = getPricePerHa(calcHectares);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormStatus('submitting');
-    // Simulate API call
-    setTimeout(() => {
-      setFormStatus('success');
-    }, 1500);
+    
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      const response = await fetch('https://dasanza.app.n8n.cloud/webhook/b8c288b0-4d07-471a-a5df-7a7c49ba479f', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        setFormStatus('success');
+        form.reset();
+        setFormHectares('');
+      } else {
+        console.error('Error submitting form');
+        setFormStatus('idle');
+        alert('Hubo un error al enviar el formulario. Por favor, inténtalo de nuevo.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setFormStatus('idle');
+      alert('Hubo un error de conexión. Por favor, inténtalo de nuevo.');
+    }
   };
 
   return (
@@ -47,6 +86,7 @@ export default function App() {
               <div className="hidden md:flex items-center gap-8">
                 <a href="#beneficios" className="text-sm font-medium text-stone-600 hover:text-emerald-600 transition-colors">Beneficios</a>
                 <a href="#precio" className="text-sm font-medium text-stone-600 hover:text-emerald-600 transition-colors">Precio</a>
+                <a href="#testimonios" className="text-sm font-medium text-stone-600 hover:text-emerald-600 transition-colors">Testimonios</a>
               </div>
               <a href="#contacto" className="text-sm font-medium bg-emerald-600 text-white px-4 py-2 rounded-full hover:bg-emerald-700 transition-colors shadow-sm">
                 Agendar <span className="hidden sm:inline">Cita</span>
@@ -57,66 +97,238 @@ export default function App() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1586771107445-d3af221808b8?q=80&w=2070&auto=format&fit=crop" 
-            alt="Drone fumigando campo" 
-            className="w-full h-full object-cover opacity-20"
-            referrerPolicy="no-referrer"
+      <section className="relative min-h-screen flex items-center pt-28 pb-16 md:pt-24 md:pb-20 overflow-hidden bg-stone-50">
+        {/* Animated Gradient Background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <motion.div 
+            animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0.6, 0.4] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-[20%] -right-[10%] w-[70%] h-[70%] rounded-full bg-emerald-200/50 blur-[120px]"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-stone-50/80 via-stone-50/95 to-stone-50"></div>
+          <motion.div 
+            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute -bottom-[20%] -left-[10%] w-[60%] h-[60%] rounded-full bg-teal-200/40 blur-[100px]"
+          />
+          {/* Stylized Field Lines (SVG) */}
+          <svg className="absolute inset-0 w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="field-pattern" width="80" height="80" patternUnits="userSpaceOnUse" patternTransform="rotate(20)">
+                <line x1="0" y1="0" x2="0" y2="80" stroke="#064e3b" strokeWidth="2" />
+                <line x1="20" y1="0" x2="20" y2="80" stroke="#064e3b" strokeWidth="1" />
+                <line x1="40" y1="0" x2="40" y2="80" stroke="#064e3b" strokeWidth="2" />
+                <line x1="60" y1="0" x2="60" y2="80" stroke="#064e3b" strokeWidth="1" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#field-pattern)" />
+          </svg>
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <span className="inline-block py-1 px-3 rounded-full bg-emerald-100 text-emerald-800 text-sm font-semibold tracking-wide mb-6 border border-emerald-200">
-              Tecnología Agrícola de Vanguardia
-            </span>
-            <h1 className="text-5xl md:text-7xl font-bold text-emerald-950 tracking-tight mb-6">
-              Fumigación de Alta <br className="hidden md:block" />
-              <span className="text-emerald-600">Precisión con Drones</span>
-            </h1>
-            <p className="mt-4 text-xl text-stone-600 max-w-2xl mx-auto mb-10">
-              Optimiza tus cultivos, ahorra insumos y protege tu suelo con nuestra tecnología de aplicación aérea. Servicio rápido, eficiente y ecológico.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4 w-full max-w-md mx-auto sm:max-w-none">
-              <a href="#contacto" className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-medium rounded-full text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20 transition-all hover:-translate-y-0.5">
-                Cotizar mi campo
-                <ChevronRight className="ml-2 w-5 h-5" />
-              </a>
-              <a href="#precio" className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-medium rounded-full text-emerald-900 bg-white border border-stone-200 hover:border-emerald-200 hover:bg-emerald-50 transition-all">
-                Ver tarifas
-              </a>
-            </div>
-          </motion.div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+            
+            {/* Left: Text Content */}
+            <motion.div 
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut", staggerChildren: 0.2 }}
+              style={{ y: y1, opacity }}
+              className="text-emerald-950"
+            >
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100/80 border border-emerald-200 backdrop-blur-sm mb-6 shadow-sm"
+              >
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
+                <span className="text-sm font-bold text-emerald-800">Tecnología Agrícola de Precisión</span>
+              </motion.div>
+              
+              <motion.h1 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 leading-[1.1]"
+              >
+                El futuro de la <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">fumigación</span> en tus manos
+              </motion.h1>
+              
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-lg md:text-xl text-stone-600 mb-8 max-w-xl leading-relaxed"
+              >
+                Optimiza tus recursos, protege tus cultivos y maximiza tu rentabilidad con nuestros drones de última generación en Ecuador.
+              </motion.p>
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col sm:flex-row gap-4"
+              >
+                <a href="#contacto" className="inline-flex justify-center items-center px-8 py-4 text-base font-bold rounded-full text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/50 hover:-translate-y-0.5 transform duration-200">
+                  Cotizar Servicio
+                </a>
+                <a href="#beneficios" className="inline-flex justify-center items-center px-8 py-4 text-base font-bold rounded-full text-emerald-700 bg-white hover:bg-stone-50 border border-stone-200 shadow-sm transition-colors hover:-translate-y-0.5 transform duration-200">
+                  Ver Beneficios
+                </a>
+              </motion.div>
+            </motion.div>
+
+            {/* Right: Visual (Drone / Ag Scene) */}
+            <motion.div 
+              style={{ y: y2 }}
+              className="relative h-[400px] sm:h-[500px] lg:h-[600px] flex items-center justify-center mt-10 lg:mt-0"
+            >
+              {/* Main Scene Container */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8, x: 50 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                transition={{ duration: 1, type: "spring", bounce: 0.4 }}
+                className="relative w-full max-w-lg px-4 sm:px-0"
+              >
+                {/* Hovering Animation Wrapper */}
+                <motion.div
+                  animate={{ y: [-15, 15, -15] }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                  className="relative z-10"
+                >
+                  {/* Main Image */}
+                  <div className="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden border-4 sm:border-8 border-white shadow-2xl shadow-emerald-900/20 bg-white">
+                    <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/60 via-transparent to-transparent z-10" />
+                    <img 
+                      src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&q=80&w=1000" 
+                      alt="Campo agrícola" 
+                      className="w-full h-[350px] sm:h-[450px] object-cover"
+                    />
+                    
+                    {/* Stylized Drone Overlay inside image */}
+                    <div className="absolute top-1/3 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
+                      <motion.div
+                        animate={{ y: [-8, 8, -8] }}
+                        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                        className="bg-white/10 backdrop-blur-sm p-4 rounded-full border border-white/30 shadow-lg"
+                      >
+                        <Fan className="w-16 h-16 text-white drop-shadow-lg" />
+                      </motion.div>
+                      {/* Mist effect */}
+                      <motion.div 
+                        animate={{ 
+                          opacity: [0, 0.9, 0],
+                          y: [0, 120],
+                          scaleX: [1, 4],
+                          scaleY: [1, 2.5]
+                        }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+                        className="w-10 h-4 bg-white/60 blur-md rounded-full mt-2"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Floating UI Card 1 */}
+                  <motion.div 
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5, duration: 0.8 }}
+                    className="absolute -right-2 sm:-right-6 top-10 sm:top-20 bg-white/90 backdrop-blur-md border border-stone-100 p-3 sm:p-4 rounded-2xl shadow-xl z-30 scale-90 sm:scale-100 origin-right"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="bg-emerald-100 p-2.5 rounded-xl text-emerald-600">
+                        <Map className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <p className="text-emerald-950 font-bold text-sm">Mapeo 3D</p>
+                        <p className="text-stone-500 text-xs">Rutas automatizadas</p>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Floating UI Card 2 */}
+                  <motion.div 
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.7, duration: 0.8 }}
+                    className="absolute -left-2 sm:-left-6 bottom-16 sm:bottom-24 bg-white/90 backdrop-blur-md border border-stone-100 p-3 sm:p-4 rounded-2xl shadow-xl z-30 scale-90 sm:scale-100 origin-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="bg-blue-100 p-2.5 rounded-xl text-blue-600">
+                        <Droplets className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <p className="text-emerald-950 font-bold text-sm">-90% Agua</p>
+                        <p className="text-stone-500 text-xs">Ultra bajo volumen</p>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                </motion.div>
+              </motion.div>
+            </motion.div>
+
+          </div>
         </div>
       </section>
 
       {/* Pricing Banner */}
-      <section id="precio" className="py-12 bg-emerald-950 text-white">
+      <section id="precio" className="py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
-            <div className="flex-1">
-              <h2 className="text-3xl font-bold mb-2">Tarifa plana y transparente</h2>
-              <p className="text-emerald-200/80 max-w-2xl mx-auto md:mx-0">Sin costos ocultos. Incluye mapeo del terreno, planificación de vuelo y aplicación precisa del producto.</p>
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold text-emerald-950 mb-4">Tarifas Flexibles y Transparentes</h2>
+            <p className="text-lg text-stone-600 max-w-2xl mx-auto">
+              Precios ajustados al tamaño de tu terreno. Mientras más hectáreas, menor es el costo por unidad.
+            </p>
+            <div className="mt-4 inline-block bg-amber-100 text-amber-800 px-4 py-2 rounded-lg text-sm font-medium border border-amber-200">
+              * Nota importante: Las tarifas no incluyen los agroquímicos.
             </div>
-            <div className="flex-shrink-0 text-center md:text-right bg-emerald-900/50 p-6 rounded-3xl w-full md:w-auto border border-emerald-800/50">
-              <div className="text-5xl font-black tracking-tighter text-emerald-400">
-                $20<span className="text-2xl font-medium text-emerald-200/60">/ha</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {/* Tier 1 */}
+            <div className="bg-white rounded-3xl p-8 shadow-lg shadow-stone-200/50 border border-stone-100 flex flex-col items-center text-center hover:-translate-y-1 transition-transform">
+              <h3 className="text-xl font-bold text-emerald-950 mb-2">Pequeños Productores</h3>
+              <p className="text-stone-500 mb-6">De 1 a 5 hectáreas</p>
+              <div className="text-5xl font-black text-emerald-600 mb-2">
+                $30<span className="text-xl text-stone-400 font-medium">/ha</span>
               </div>
-              <p className="text-sm text-emerald-200/60 mt-1">Precio por hectárea aplicada</p>
+              <p className="text-sm text-stone-500 mb-8">Ideal para parcelas pequeñas y pruebas de eficacia.</p>
+              <a href="#contacto" onClick={() => setFormHectares('5')} className="mt-auto w-full py-3 px-6 rounded-full font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors">
+                Seleccionar
+              </a>
+            </div>
+
+            {/* Tier 2 */}
+            <div className="bg-emerald-950 rounded-3xl p-8 shadow-xl shadow-emerald-900/20 border border-emerald-800 flex flex-col items-center text-center transform md:-translate-y-4 relative">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-emerald-500 text-white px-4 py-1 rounded-full text-sm font-bold tracking-wide">
+                MÁS POPULAR
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Medianos Productores</h3>
+              <p className="text-emerald-200/60 mb-6">De 6 a 20 hectáreas</p>
+              <div className="text-5xl font-black text-emerald-400 mb-2">
+                $25<span className="text-xl text-emerald-200/40 font-medium">/ha</span>
+              </div>
+              <p className="text-sm text-emerald-200/60 mb-8">El equilibrio perfecto para fincas de tamaño medio.</p>
+              <a href="#contacto" onClick={() => setFormHectares('15')} className="mt-auto w-full py-3 px-6 rounded-full font-bold text-emerald-950 bg-emerald-400 hover:bg-emerald-300 transition-colors">
+                Seleccionar
+              </a>
+            </div>
+
+            {/* Tier 3 */}
+            <div className="bg-white rounded-3xl p-8 shadow-lg shadow-stone-200/50 border border-stone-100 flex flex-col items-center text-center hover:-translate-y-1 transition-transform">
+              <h3 className="text-xl font-bold text-emerald-950 mb-2">Grandes Extensiones</h3>
+              <p className="text-stone-500 mb-6">Más de 20 hectáreas</p>
+              <div className="text-5xl font-black text-emerald-600 mb-2">
+                $20<span className="text-xl text-stone-400 font-medium">/ha</span>
+              </div>
+              <p className="text-sm text-stone-500 mb-8">Máximo ahorro para haciendas y grandes cultivos.</p>
+              <a href="#contacto" onClick={() => setFormHectares('50')} className="mt-auto w-full py-3 px-6 rounded-full font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors">
+                Seleccionar
+              </a>
             </div>
           </div>
         </div>
       </section>
 
       {/* Features */}
-      <section id="beneficios" className="py-24 bg-white">
+      <section id="beneficios" className="py-16 md:py-24 bg-stone-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-emerald-950 mb-4">¿Por qué elegir fumigación con drones?</h2>
@@ -152,11 +364,15 @@ export default function App() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1, duration: 0.5 }}
-                className="bg-stone-50 rounded-2xl p-8 border border-stone-100 hover:border-emerald-100 hover:shadow-lg hover:shadow-emerald-900/5 transition-all"
+                className="bg-white rounded-2xl p-6 md:p-8 border border-stone-200 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-900/5 transition-all group"
               >
-                <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mb-6">
+                <motion.div 
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: idx * 0.2 }}
+                  className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-colors"
+                >
                   {feature.icon}
-                </div>
+                </motion.div>
                 <h3 className="text-xl font-semibold text-emerald-950 mb-3">{feature.title}</h3>
                 <p className="text-stone-600 leading-relaxed">{feature.desc}</p>
               </motion.div>
@@ -166,7 +382,7 @@ export default function App() {
       </section>
 
       {/* Interactive Calculator Section */}
-      <section className="py-24 bg-emerald-950 text-white relative overflow-hidden">
+      <section className="py-16 md:py-24 bg-emerald-950 text-white relative overflow-hidden">
         {/* Background decorative elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
           <div className="absolute -top-24 -right-24 w-96 h-96 bg-emerald-600/20 rounded-full blur-3xl"></div>
@@ -209,8 +425,8 @@ export default function App() {
                 <div className="text-emerald-400 mb-2 sm:mb-3"><DollarSign className="w-6 h-6 sm:w-8 sm:h-8" /></div>
                 <div>
                   <div className="text-xs sm:text-sm text-emerald-200/70 mb-1">Inversión Total</div>
-                  <div className="text-xl sm:text-3xl font-bold text-white">${(calcHectares * 20).toLocaleString()}</div>
-                  <div className="text-[10px] sm:text-xs text-emerald-400/60 mt-1 sm:mt-2">A $20 por hectárea</div>
+                  <div className="text-xl sm:text-3xl font-bold text-white">${(calcHectares * currentPrice).toLocaleString()}</div>
+                  <div className="text-[10px] sm:text-xs text-emerald-400/60 mt-1 sm:mt-2">A ${currentPrice} por hectárea</div>
                 </div>
               </div>
               <div className="bg-emerald-950/50 rounded-2xl p-4 sm:p-6 border border-emerald-800/30 flex flex-col justify-between">
@@ -255,8 +471,62 @@ export default function App() {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <section id="testimonios" className="py-16 md:py-24 bg-white text-emerald-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Lo que dicen nuestros clientes</h2>
+            <p className="text-lg text-stone-600 max-w-2xl mx-auto">
+              Productores de la Costa y Sierra confían en AgroDrone para proteger sus cultivos.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            {[
+              {
+                name: "Carlos Mendoza",
+                location: "Guayas, Costa",
+                crop: "Arroz",
+                text: "El ahorro en agua y químicos es impresionante. Antes tardábamos días en fumigar, ahora con los drones terminamos en horas y sin pisar el cultivo."
+              },
+              {
+                name: "María Fernanda López",
+                location: "Pichincha, Sierra",
+                crop: "Papa",
+                text: "La precisión en terrenos irregulares de la sierra es increíble. El dron mantiene la altura perfecta y la cobertura es uniforme. Excelente servicio."
+              },
+              {
+                name: "Roberto Zambrano",
+                location: "Los Ríos, Costa",
+                crop: "Banano",
+                text: "Muy profesionales. La tarifa escalonada me ayudó mucho ya que tengo más de 50 hectáreas. La inversión se recupera sola con lo que salvas de cultivo."
+              }
+            ].map((testimonial, idx) => (
+              <div key={idx} className="bg-stone-50 rounded-3xl p-6 md:p-8 border border-stone-200 shadow-lg shadow-stone-200/50 relative hover:-translate-y-1 transition-transform">
+                <Quote className="absolute top-6 right-6 w-10 h-10 text-emerald-100" />
+                <div className="flex gap-1 text-amber-400 mb-6">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-current" />)}
+                </div>
+                <p className="text-stone-700 text-base md:text-lg leading-relaxed mb-8 relative z-10">
+                  "{testimonial.text}"
+                </p>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-xl font-bold text-emerald-700 shrink-0">
+                    {testimonial.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-emerald-950">{testimonial.name}</h4>
+                    <p className="text-sm text-stone-500">{testimonial.crop} • {testimonial.location}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Contact Form Section */}
-      <section id="contacto" className="py-24 bg-stone-100">
+      <section id="contacto" className="py-16 md:py-24 bg-stone-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             
@@ -274,7 +544,7 @@ export default function App() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-emerald-950">Cobertura</h4>
-                    <p className="text-stone-600">Servicio disponible en toda la región agrícola central.</p>
+                    <p className="text-stone-600">Atendemos en toda la Costa y Sierra Ecuatoriana.</p>
                   </div>
                 </div>
                 
@@ -284,7 +554,7 @@ export default function App() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-emerald-950">Llámanos</h4>
-                    <p className="text-stone-600">+1 (555) 123-4567</p>
+                    <p className="text-stone-600">0995006332</p>
                   </div>
                 </div>
 
@@ -294,7 +564,7 @@ export default function App() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-emerald-950">Correo</h4>
-                    <p className="text-stone-600">contacto@agrodrone.com</p>
+                    <p className="text-stone-600">ecuadorfumiga@agrodone.com</p>
                   </div>
                 </div>
               </div>
@@ -309,7 +579,7 @@ export default function App() {
             </div>
 
             {/* Form */}
-            <div className="bg-white rounded-3xl p-8 shadow-xl shadow-stone-200/50 border border-stone-100">
+            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xl shadow-stone-200/50 border border-stone-100">
               {formStatus === 'success' ? (
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -335,17 +605,17 @@ export default function App() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div className="space-y-1.5">
                       <label htmlFor="name" className="text-sm font-medium text-stone-700">Nombre completo</label>
-                      <input required type="text" id="name" className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="Juan Pérez" />
+                      <input required type="text" id="name" name="name" className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="Juan Pérez" />
                     </div>
                     <div className="space-y-1.5">
                       <label htmlFor="phone" className="text-sm font-medium text-stone-700">Teléfono</label>
-                      <input required type="tel" id="phone" className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="+1 234 567 890" />
+                      <input required type="tel" id="phone" name="phone" className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="*593 965 556 776" />
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
                     <label htmlFor="email" className="text-sm font-medium text-stone-700">Correo electrónico</label>
-                    <input required type="email" id="email" className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="juan@ejemplo.com" />
+                    <input required type="email" id="email" name="email" className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="juan@ejemplo.com" />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -357,6 +627,7 @@ export default function App() {
                           type="number" 
                           min="1" 
                           id="hectares" 
+                          name="hectares"
                           value={formHectares}
                           onChange={(e) => setFormHectares(e.target.value)}
                           className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all pr-12" 
@@ -367,20 +638,20 @@ export default function App() {
                     </div>
                     <div className="space-y-1.5">
                       <label htmlFor="crop" className="text-sm font-medium text-stone-700">Tipo de cultivo</label>
-                      <input required type="text" id="crop" className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="Ej. Maíz, Soja, Trigo" />
+                      <input required type="text" id="crop" name="crop" className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="Ej. Maíz, Soja, Trigo" />
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
                     <label htmlFor="date" className="text-sm font-medium text-stone-700">Fecha preferida (Opcional)</label>
                     <div className="relative">
-                      <input type="date" id="date" className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" />
+                      <input type="date" id="date" name="date" className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" />
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
                     <label htmlFor="message" className="text-sm font-medium text-stone-700">Mensaje adicional</label>
-                    <textarea id="message" rows={3} className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all resize-none" placeholder="Cuéntanos más sobre el terreno, tipo de producto a aplicar, etc."></textarea>
+                    <textarea id="message" name="message" rows={3} className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all resize-none" placeholder="Cuéntanos más sobre el terreno, tipo de producto a aplicar, etc."></textarea>
                   </div>
 
                   <button 
